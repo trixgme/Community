@@ -4,7 +4,13 @@
       "Bash(npx create-next-app:*)",
       "Bash(yes \"n\")",
       "Bash(npm run build:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Read(//c/Users/realm/OneDrive/바탕 화면/**)",
+      "Bash(npm install:*)",
+      "Bash(taskkill:*)",
+      "Bash(pkill:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
