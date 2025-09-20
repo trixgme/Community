@@ -75,3 +75,35 @@ export async function getUserComments(userId: string): Promise<CommentWithProfil
   if (error) throw error;
   return data || [];
 }
+
+// 댓글 변경사항 실시간 구독
+export function subscribeToCommentChanges(
+  postId: string,
+  callback: (payload: {
+    eventType: 'INSERT' | 'DELETE' | 'UPDATE'
+    new: Comment | null
+    old: Comment | null
+  }) => void
+) {
+  const subscription = supabase
+    .channel(`comments:post:${postId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'comments',
+        filter: `post_id=eq.${postId}`
+      },
+      (payload: any) => {
+        callback({
+          eventType: payload.eventType,
+          new: payload.new,
+          old: payload.old
+        })
+      }
+    )
+    .subscribe()
+
+  return subscription
+}

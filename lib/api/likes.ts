@@ -73,3 +73,69 @@ export async function toggleLike(userId: string, postId: string): Promise<boolea
     throw error;
   }
 }
+
+// 여러 포스트의 좋아요 상태를 한 번에 확인
+export async function checkMultipleLikeStatus(userId: string, postIds: string[]): Promise<Record<string, boolean>> {
+  try {
+    const { data, error } = await supabase
+      .from('likes')
+      .select('post_id')
+      .eq('user_id', userId)
+      .in('post_id', postIds);
+
+    if (error) {
+      console.error('checkMultipleLikeStatus error:', error)
+      return {}
+    }
+
+    // 결과를 객체 형태로 변환
+    const likeStatusMap: Record<string, boolean> = {}
+
+    // 모든 포스트를 false로 초기화
+    postIds.forEach(postId => {
+      likeStatusMap[postId] = false
+    })
+
+    // 좋아요한 포스트들을 true로 설정
+    data?.forEach(like => {
+      likeStatusMap[like.post_id] = true
+    })
+
+    return likeStatusMap
+  } catch (error) {
+    console.error('checkMultipleLikeStatus failed:', error)
+    return {}
+  }
+}
+
+// 좋아요 변경사항 실시간 구독
+export function subscribeToLikeChanges(
+  postId: string,
+  callback: (payload: {
+    eventType: 'INSERT' | 'DELETE' | 'UPDATE'
+    new: Like | null
+    old: Like | null
+  }) => void
+) {
+  const subscription = supabase
+    .channel(`likes:post:${postId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'likes',
+        filter: `post_id=eq.${postId}`
+      },
+      (payload: any) => {
+        callback({
+          eventType: payload.eventType,
+          new: payload.new,
+          old: payload.old
+        })
+      }
+    )
+    .subscribe()
+
+  return subscription
+}

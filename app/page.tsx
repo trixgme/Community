@@ -1,7 +1,6 @@
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Feed from "./components/Feed";
-import DebugPanel from "./components/debug/DebugPanel";
 
 export default function Home() {
   return (
@@ -13,9 +12,6 @@ export default function Home() {
       </main>
 
       <Footer />
-
-      {/* 개발 중 디버깅용 패널 */}
-      {process.env.NODE_ENV === 'development' && <DebugPanel />}
     </div>
   );
 }

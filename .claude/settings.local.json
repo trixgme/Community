@@ -1,20 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx create-next-app:*)",
-      "Bash(yes \"n\")",
-      "Bash(npm run build:*)",
+      "Bash(dir C:Usersrealm.claude)",
+      "Bash(cmd /c dir:*)",
+      "Bash(cmd /c:*)",
+      "mcp__supabase__get_anon_key",
+      "Bash(node:*)",
+      "mcp__supabase__execute_sql",
+      "mcp__supabase__list_edge_functions",
       "Bash(npm run dev:*)",
-      "Read(//c/Users/realm/OneDrive/바탕 화면/**)",
-      "Bash(npm install:*)",
-      "Bash(taskkill:*)",
-      "Bash(pkill:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "WebFetch(domain:supabase.com)",
-      "Bash(claude config list)",
-      "Bash(claude mcp:*)",
-      "Read(//c/Users/realm/**)"
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
