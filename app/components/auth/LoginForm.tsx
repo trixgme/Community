@@ -92,7 +92,7 @@ export default function LoginForm({
               type="email"
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
-              className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder:text-gray-500 ${
                 errors.email ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="이메일을 입력하세요"
@@ -114,7 +114,7 @@ export default function LoginForm({
               type={showPassword ? 'text' : 'password'}
               value={formData.password}
               onChange={(e) => handleChange('password', e.target.value)}
-              className={`w-full pl-10 pr-12 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full pl-10 pr-12 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder:text-gray-500 ${
                 errors.password ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="비밀번호를 입력하세요"

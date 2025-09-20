@@ -124,7 +124,7 @@ export default function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormPro
               type="email"
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
-              className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder:text-gray-500 ${
                 errors.email ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="이메일을 입력하세요"
@@ -146,7 +146,7 @@ export default function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormPro
               type="text"
               value={formData.username}
               onChange={(e) => handleChange('username', e.target.value)}
-              className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder:text-gray-500 ${
                 errors.username ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="사용자명을 입력하세요"
@@ -166,7 +166,7 @@ export default function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormPro
             type="text"
             value={formData.fullName}
             onChange={(e) => handleChange('fullName', e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder:text-gray-500"
             placeholder="실제 이름을 입력하세요"
           />
         </div>
@@ -182,7 +182,7 @@ export default function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormPro
               type={showPassword ? 'text' : 'password'}
               value={formData.password}
               onChange={(e) => handleChange('password', e.target.value)}
-              className={`w-full pl-10 pr-12 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full pl-10 pr-12 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder:text-gray-500 ${
                 errors.password ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="비밀번호를 입력하세요"
@@ -215,7 +215,7 @@ export default function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormPro
               type={showConfirmPassword ? 'text' : 'password'}
               value={formData.confirmPassword}
               onChange={(e) => handleChange('confirmPassword', e.target.value)}
-              className={`w-full pl-10 pr-12 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full pl-10 pr-12 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder:text-gray-500 ${
                 errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="비밀번호를 다시 입력하세요"

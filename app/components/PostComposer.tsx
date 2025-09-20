@@ -138,7 +138,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder={`${profile.full_name || profile.username}님, 무슨 생각을 하고 계신가요?`}
-              className="w-full p-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50"
+              className="w-full p-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 text-gray-900 placeholder:text-gray-500"
               rows={3}
               maxLength={2000}
               disabled={isSubmitting || isUploadingImage}
