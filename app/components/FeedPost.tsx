@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect } from "react";
-import { Heart, MessageCircle, Share2, MoreHorizontal } from "lucide-react";
+import { Heart, MessageCircle, Share2, MoreHorizontal, Edit3, Trash2, X } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import { toggleLike, subscribeToLikeChanges } from '@/lib/api/likes';
 import { subscribeToCommentChanges } from '@/lib/api/comments';
+import { updatePost, deletePost } from '@/lib/api/posts';
 import CommentsSection from './CommentsSection';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -23,6 +24,8 @@ interface FeedPostProps {
   comments: number;
   shares: number;
   isLiked: boolean;
+  onPostDeleted?: (postId: string) => void;
+  onPostUpdated?: (postId: string, newContent: string) => void;
 }
 
 export default function FeedPost({
@@ -34,7 +37,9 @@ export default function FeedPost({
   likes: initialLikes,
   comments,
   shares,
-  isLiked: initialIsLiked
+  isLiked: initialIsLiked,
+  onPostDeleted,
+  onPostUpdated
 }: FeedPostProps) {
   const { user } = useAuth();
   const [likes, setLikes] = useState(initialLikes);
@@ -42,6 +47,18 @@ export default function FeedPost({
   const [isTogglingLike, setIsTogglingLike] = useState(false);
   const [commentsCount, setCommentsCount] = useState(comments);
   const [showComments, setShowComments] = useState(false);
+
+  // 수정/삭제 관련 상태
+  const [showMenu, setShowMenu] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(content);
+  const [currentContent, setCurrentContent] = useState(content); // 현재 표시되는 내용
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // 현재 사용자가 게시글 작성자인지 확인
+  const isOwner = user?.id === author.id;
 
   // props 변경 시 로컬 상태 동기화
   useEffect(() => {
@@ -53,6 +70,12 @@ export default function FeedPost({
   useEffect(() => {
     setCommentsCount(comments);
   }, [comments]);
+
+  // 게시글 내용 변경 시 동기화
+  useEffect(() => {
+    setCurrentContent(content);
+    setEditContent(content);
+  }, [content]);
 
   // 좋아요 토글 핸들러
   const handleLikeToggle = async () => {
@@ -89,6 +112,65 @@ export default function FeedPost({
   // 댓글 섹션 토글
   const handleCommentsToggle = () => {
     setShowComments(!showComments);
+  };
+
+  // 게시글 수정 함수
+  const handleEdit = () => {
+    setIsEditing(true);
+    setEditContent(currentContent);
+    setShowMenu(false);
+  };
+
+  // 게시글 수정 취소
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditContent(currentContent);
+  };
+
+  // 게시글 수정 저장
+  const handleSaveEdit = async () => {
+    if (!editContent.trim() || isSaving) return;
+
+    setIsSaving(true);
+    try {
+      await updatePost(id, { content: editContent.trim() });
+
+      // 즉시 로컬 상태 업데이트
+      setCurrentContent(editContent.trim());
+      setIsEditing(false);
+
+      // 부모 컴포넌트에도 알림
+      onPostUpdated?.(id, editContent.trim());
+
+    } catch (error: unknown) {
+      console.error('게시글 수정 실패:', error);
+      alert('게시글 수정에 실패했습니다.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // 게시글 삭제 확인
+  const handleDeleteConfirm = () => {
+    setShowDeleteConfirm(true);
+    setShowMenu(false);
+  };
+
+  // 게시글 삭제 실행
+  const handleDelete = async () => {
+    if (isDeleting) return;
+
+    setIsDeleting(true);
+    try {
+      await deletePost(id);
+      onPostDeleted?.(id);
+      setShowDeleteConfirm(false);
+    } catch (error: unknown) {
+      console.error('게시글 삭제 실패:', error);
+      alert('게시글 삭제에 실패했습니다.');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   // 실시간 좋아요 변경사항 구독
@@ -160,14 +242,72 @@ export default function FeedPost({
             <p className="text-sm text-gray-500">{timestamp}</p>
           </div>
         </div>
-        <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-          <MoreHorizontal className="w-5 h-5 text-gray-500" />
-        </button>
+
+        {/* 더보기 메뉴 (작성자만 표시) */}
+        {isOwner && (
+          <div className="relative">
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <MoreHorizontal className="w-5 h-5 text-gray-500" />
+            </button>
+
+            {/* 드롭다운 메뉴 */}
+            {showMenu && (
+              <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg border z-50">
+                <button
+                  onClick={handleEdit}
+                  className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-md"
+                >
+                  <Edit3 className="w-4 h-4 mr-2" />
+                  수정
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-md"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  삭제
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 포스트 내용 */}
       <div className="px-4 pb-3">
-        <p className="text-gray-800 leading-relaxed">{content}</p>
+        {isEditing ? (
+          <div className="space-y-3">
+            <textarea
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900 placeholder:text-gray-500"
+              rows={3}
+              placeholder="게시글 내용을 입력하세요..."
+              disabled={isSaving}
+            />
+            <div className="flex space-x-2">
+              <button
+                onClick={handleSaveEdit}
+                disabled={!editContent.trim() || isSaving}
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white rounded-lg transition-colors text-sm"
+              >
+                {isSaving ? '저장 중...' : '저장'}
+              </button>
+              <button
+                onClick={handleCancelEdit}
+                disabled={isSaving}
+                className="px-4 py-2 bg-gray-300 hover:bg-gray-400 disabled:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-gray-800 leading-relaxed">{currentContent}</p>
+        )}
       </div>
 
       {/* 이미지 */}
@@ -250,6 +390,44 @@ export default function FeedPost({
         postId={id}
         isOpen={showComments}
       />
+
+      {/* 메뉴 외부 클릭 처리 */}
+      {showMenu && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setShowMenu(false)}
+        />
+      )}
+
+      {/* 삭제 확인 모달 */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              게시글 삭제
+            </h3>
+            <p className="text-gray-600 mb-6">
+              정말로 이 게시글을 삭제하시겠습니까? 삭제된 게시글은 복구할 수 없습니다.
+            </p>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white rounded-lg transition-colors"
+              >
+                {isDeleting ? '삭제 중...' : '삭제'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

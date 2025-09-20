@@ -110,6 +110,26 @@ export default function Feed() {
     loadPosts(true)
   }, [loadPosts])
 
+  // 게시글 삭제 핸들러
+  const handlePostDeleted = useCallback((postId: string) => {
+    setPosts(prevPosts => prevPosts.filter(post => post.id !== postId))
+    // 좋아요 상태도 정리
+    setLikeStatus(prevStatus => {
+      const newStatus = { ...prevStatus }
+      delete newStatus[postId]
+      return newStatus
+    })
+  }, [])
+
+  // 게시글 수정 핸들러
+  const handlePostUpdated = useCallback((postId: string, newContent: string) => {
+    setPosts(prevPosts => prevPosts.map(post =>
+      post.id === postId
+        ? { ...post, content: newContent, updated_at: new Date().toISOString() }
+        : post
+    ))
+  }, [])
+
   // 초기 로딩 및 실시간 구독
   useEffect(() => {
     loadPosts()
@@ -201,6 +221,8 @@ export default function Feed() {
             <FeedPost
               key={post.id}
               {...transformPostData(post)}
+              onPostDeleted={handlePostDeleted}
+              onPostUpdated={handlePostUpdated}
             />
           ))}
         </div>
