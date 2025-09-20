@@ -3,10 +3,12 @@
 import { useState } from 'react'
 import { Search, Home, Users, Bell, MessageCircle, LogOut, Settings } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 import AuthModal from './auth/AuthModal'
 
 export default function Header() {
   const { user, profile, signOut } = useAuth()
+  const router = useRouter()
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
 
@@ -20,6 +22,11 @@ export default function Header() {
 
   const handleSignOut = async () => {
     await signOut()
+    setShowProfileMenu(false)
+  }
+
+  const handleSettingsClick = () => {
+    router.push('/profile')
     setShowProfileMenu(false)
   }
 
@@ -86,7 +93,10 @@ export default function Header() {
                           )}
                           <div>@{profile?.username}</div>
                         </div>
-                        <button className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded mt-1">
+                        <button
+                          onClick={handleSettingsClick}
+                          className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded mt-1"
+                        >
                           <Settings className="w-4 h-4 mr-2" />
                           설정
                         </button>
