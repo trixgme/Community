@@ -156,13 +156,20 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
         {/* 이미지 미리보기 */}
         {imagePreview && (
           <div className="relative mb-4">
-            <img
-              src={imagePreview}
-              alt="미리보기"
-              className={`w-full max-h-64 object-cover rounded-lg border border-gray-200 transition-opacity ${
-                isUploadingImage ? 'opacity-50' : ''
-              }`}
-            />
+            <div className="w-full max-h-[500px] rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center">
+              <img
+                src={imagePreview}
+                alt="미리보기"
+                className={`max-w-full max-h-full object-contain transition-opacity ${
+                  isUploadingImage ? 'opacity-50' : ''
+                }`}
+                style={{
+                  maxHeight: '500px',
+                  width: 'auto',
+                  height: 'auto'
+                }}
+              />
+            </div>
 
             {/* 업로드 진행 표시 */}
             {isUploadingImage && (

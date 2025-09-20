@@ -173,11 +173,18 @@ export default function FeedPost({
       {/* 이미지 */}
       {image && (
         <div className="mb-3">
-          <img
-            src={image}
-            alt="포스트 이미지"
-            className="w-full max-h-96 object-cover"
-          />
+          <div className="w-full max-h-[500px] rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center">
+            <img
+              src={image}
+              alt="포스트 이미지"
+              className="max-w-full max-h-full object-contain"
+              style={{
+                maxHeight: '500px',
+                width: 'auto',
+                height: 'auto'
+              }}
+            />
+          </div>
         </div>
       )}
 

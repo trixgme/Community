@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { getCurrentUserProfile } from '@/lib/api/profiles'
+import { handleAuthError } from '@/lib/api'
 import type { User, Session } from '@supabase/supabase-js'
 import type { Profile } from '@/lib/types/database.types'
 
@@ -58,6 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setProfile(userProfile)
     } catch (error) {
       console.error('Failed to fetch/create profile:', error)
+      handleAuthError(error)
       setProfile(null)
     }
   }
@@ -68,16 +70,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       setProfile(null)
       setSession(null)
+      // 로컬 스토리지도 정리
+      localStorage.clear()
     } catch (error) {
       console.error('Error signing out:', error)
+      // 에러가 발생해도 로컬 상태는 정리
+      setUser(null)
+      setProfile(null)
+      setSession(null)
+      localStorage.clear()
     }
   }
 
   useEffect(() => {
     // 초기 세션 가져오기
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('Session error:', error)
+        handleAuthError(error)
+        // 세션 에러가 있으면 로그아웃 처리
+        setSession(null)
+        setUser(null)
+        setProfile(null)
+      } else {
+        setSession(session)
+        setUser(session?.user ?? null)
+      }
       setLoading(false)
     })
 
@@ -85,6 +103,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state change:', event, session?.user?.id)
+
+      // TOKEN_REFRESHED 이벤트에서도 에러가 있을 수 있음
+      if (event === 'TOKEN_REFRESHED' && !session) {
+        console.log('Token refresh failed, signing out')
+        await signOut()
+        return
+      }
+
+      // SIGNED_OUT 이벤트나 세션이 null인 경우 처리
+      if (event === 'SIGNED_OUT' || !session) {
+        setSession(null)
+        setUser(null)
+        setProfile(null)
+        setLoading(false)
+        return
+      }
+
+      // 정상적인 세션인 경우
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
@@ -92,8 +129,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session?.user) {
         // 사용자가 로그인하면 프로필 정보 가져오기
         await refreshProfile()
-      } else {
-        setProfile(null)
       }
     })
 
