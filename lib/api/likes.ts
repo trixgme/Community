@@ -78,8 +78,6 @@ export async function toggleLike(userId: string, postId: string): Promise<boolea
 // 여러 포스트의 좋아요 상태를 한 번에 확인
 export async function checkMultipleLikeStatus(userId: string, postIds: string[]): Promise<Record<string, boolean>> {
   try {
-    console.log('Checking like status for user:', userId, 'posts:', postIds)
-
     const { data, error } = await (supabase as SupabaseClient)
       .from('likes')
       .select('post_id')
@@ -90,8 +88,6 @@ export async function checkMultipleLikeStatus(userId: string, postIds: string[])
       console.error('checkMultipleLikeStatus error:', error)
       return {}
     }
-
-    console.log('Like query result:', data)
 
     // 결과를 객체 형태로 변환
     const likeStatusMap: Record<string, boolean> = {}
@@ -106,7 +102,6 @@ export async function checkMultipleLikeStatus(userId: string, postIds: string[])
       likeStatusMap[like.post_id] = true
     })
 
-    console.log('Final like status map:', likeStatusMap)
     return likeStatusMap
   } catch (error) {
     console.error('checkMultipleLikeStatus failed:', error)

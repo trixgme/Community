@@ -83,7 +83,6 @@ export default function Feed() {
         try {
           const postIds = fetchedPosts.map(post => post.id)
           const userLikeStatus = await checkMultipleLikeStatus(user.id, postIds)
-          console.log('Loaded like status:', userLikeStatus)
           setLikeStatus(userLikeStatus)
         } catch (likeError) {
           console.error('Failed to load like status:', likeError)

@@ -10,7 +10,8 @@
       "mcp__supabase__list_edge_functions",
       "Bash(npm run dev:*)",
       "Bash(git add:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

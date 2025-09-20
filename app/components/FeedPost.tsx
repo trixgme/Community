@@ -45,10 +45,9 @@ export default function FeedPost({
 
   // props 변경 시 로컬 상태 동기화
   useEffect(() => {
-    console.log(`Post ${id}: Updating like status from ${isLiked} to ${initialIsLiked}, likes from ${likes} to ${initialLikes}`);
     setIsLiked(initialIsLiked);
     setLikes(initialLikes);
-  }, [initialIsLiked, initialLikes, id, isLiked, likes]);
+  }, [initialIsLiked, initialLikes]);
 
   // 댓글 수 변경 시 동기화
   useEffect(() => {
@@ -98,22 +97,19 @@ export default function FeedPost({
 
     if (id) {
       subscription = subscribeToLikeChanges(id, (payload) => {
-        console.log('Like change detected for post:', id, payload);
 
         if (payload.eventType === 'INSERT') {
-          // 새로운 좋아요 추가
-          setLikes(prev => prev + 1);
-          // 현재 사용자가 좋아요를 눌렀는지 확인
-          if (user && payload.new?.user_id === user.id) {
-            setIsLiked(true);
+          // 새로운 좋아요 추가 - 다른 사용자의 경우에만 좋아요 수 증가
+          if (!user || payload.new?.user_id !== user.id) {
+            setLikes(prev => prev + 1);
           }
+          // 현재 사용자가 좋아요를 누른 경우는 이미 낙관적 업데이트로 처리됨
         } else if (payload.eventType === 'DELETE') {
-          // 좋아요 취소
-          setLikes(prev => Math.max(0, prev - 1));
-          // 현재 사용자가 좋아요를 취소했는지 확인
-          if (user && payload.old?.user_id === user.id) {
-            setIsLiked(false);
+          // 좋아요 취소 - 다른 사용자의 경우에만 좋아요 수 감소
+          if (!user || payload.old?.user_id !== user.id) {
+            setLikes(prev => Math.max(0, prev - 1));
           }
+          // 현재 사용자가 좋아요를 취소한 경우는 이미 낙관적 업데이트로 처리됨
         }
       });
     }
