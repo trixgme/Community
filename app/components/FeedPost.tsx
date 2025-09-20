@@ -43,9 +43,25 @@ export default function FeedPost({
   const [commentsCount, setCommentsCount] = useState(comments);
   const [showComments, setShowComments] = useState(false);
 
+  // props 변경 시 로컬 상태 동기화
+  useEffect(() => {
+    console.log(`Post ${id}: Updating like status from ${isLiked} to ${initialIsLiked}, likes from ${likes} to ${initialLikes}`);
+    setIsLiked(initialIsLiked);
+    setLikes(initialLikes);
+  }, [initialIsLiked, initialLikes, id, isLiked, likes]);
+
+  // 댓글 수 변경 시 동기화
+  useEffect(() => {
+    setCommentsCount(comments);
+  }, [comments]);
+
   // 좋아요 토글 핸들러
   const handleLikeToggle = async () => {
     if (!user || isTogglingLike) return;
+
+    // 현재 상태 저장 (롤백용)
+    const currentIsLiked = isLiked;
+    const currentLikes = likes;
 
     // 낙관적 업데이트 (Optimistic Update)
     const newIsLiked = !isLiked;
@@ -60,9 +76,9 @@ export default function FeedPost({
     } catch (error: unknown) {
       console.error('좋아요 토글 실패:', error);
 
-      // 실패 시 롤백
-      setIsLiked(!newIsLiked);
-      setLikes(initialLikes);
+      // 실패 시 이전 상태로 롤백
+      setIsLiked(currentIsLiked);
+      setLikes(currentLikes);
 
       // 사용자에게 알림 (선택적)
       // alert(error instanceof Error ? error.message : '좋아요 처리 중 오류가 발생했습니다.');
