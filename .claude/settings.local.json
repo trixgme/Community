@@ -10,7 +10,11 @@
       "Bash(taskkill:*)",
       "Bash(pkill:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "WebFetch(domain:supabase.com)",
+      "Bash(claude config list)",
+      "Bash(claude mcp:*)",
+      "Read(//c/Users/realm/**)"
     ],
     "deny": [],
     "ask": []
