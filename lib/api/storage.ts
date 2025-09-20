@@ -48,7 +48,7 @@ export async function uploadImage(file: File): Promise<string> {
     }
 
     return publicUrlData.publicUrl
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Image upload failed:', error)
     throw error
   }

@@ -86,6 +86,7 @@ export interface LikeInsert {
 
 export interface LikeUpdate {
   // Likes typically don't get updated
+  _placeholder?: never // Making the interface non-empty to satisfy eslint
 }
 
 export interface Comment {
@@ -131,7 +132,7 @@ export interface FeedPostData {
   likes: number
   comments: number
   shares: number
-  isLiked?: boolean
+  isLiked: boolean
 }
 
 export interface CommentData {

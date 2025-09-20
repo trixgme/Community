@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Loader2, RefreshCw } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import FeedPost from "./FeedPost";
@@ -61,12 +61,12 @@ export default function Feed() {
       likes: post.likes_count,
       comments: post.comments_count,
       shares: 0, // 공유 기능은 나중에 추가
-      isLiked: likeStatus[post.id] || false,
+      isLiked: Boolean(likeStatus[post.id]),
     }
   }
 
   // 포스트 목록 로드
-  const loadPosts = async (showRefreshing = false) => {
+  const loadPosts = useCallback(async (showRefreshing = false) => {
     try {
       if (showRefreshing) {
         setRefreshing(true)
@@ -91,24 +91,24 @@ export default function Feed() {
       } else {
         setLikeStatus({})
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load posts:', error)
-      setError(error.message || '포스트를 불러오는데 실패했습니다.')
+      setError(error instanceof Error ? error.message : '포스트를 불러오는데 실패했습니다.')
     } finally {
       setLoading(false)
       setRefreshing(false)
     }
-  }
+  }, [user])
 
   // 새 포스트 생성 시 호출되는 함수
-  const handlePostCreated = () => {
+  const handlePostCreated = useCallback(() => {
     loadPosts(true)
-  }
+  }, [loadPosts])
 
   // 수동 새로고침
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     loadPosts(true)
-  }
+  }, [loadPosts])
 
   // 초기 로딩 및 실시간 구독
   useEffect(() => {
@@ -135,7 +135,7 @@ export default function Feed() {
         subscription.unsubscribe()
       }
     }
-  }, [])
+  }, [loadPosts])
 
   // 로딩 상태
   if (loading && !refreshing) {

@@ -10,7 +10,7 @@ import type { RealtimeChannel } from '@supabase/supabase-js'
 
 // 포스트 실시간 구독
 export function subscribeToPostChanges(
-  callback: (payload: any) => void
+  callback: (payload: { eventType: string; new: unknown; old: unknown }) => void
 ): RealtimeChannel {
   return supabase
     .channel('posts-channel')
@@ -29,7 +29,7 @@ export function subscribeToPostChanges(
 // 좋아요 실시간 구독
 export function subscribeToLikeChanges(
   postId: string,
-  callback: (payload: any) => void
+  callback: (payload: { eventType: string; new: unknown; old: unknown }) => void
 ): RealtimeChannel {
   return supabase
     .channel(`likes-${postId}`)
@@ -49,7 +49,7 @@ export function subscribeToLikeChanges(
 // 댓글 실시간 구독
 export function subscribeToCommentChanges(
   postId: string,
-  callback: (payload: any) => void
+  callback: (payload: { eventType: string; new: unknown; old: unknown }) => void
 ): RealtimeChannel {
   return supabase
     .channel(`comments-${postId}`)

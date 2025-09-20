@@ -1,5 +1,6 @@
 import { supabase } from '../supabase'
 import type { Comment, CommentInsert, CommentWithProfile } from '../types/database.types'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 // 포스트의 댓글 조회
 export async function getPostComments(postId: string): Promise<CommentWithProfile[]> {
@@ -23,9 +24,9 @@ export async function getPostComments(postId: string): Promise<CommentWithProfil
 
 // 새 댓글 생성
 export async function createComment(comment: CommentInsert): Promise<Comment> {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as SupabaseClient)
     .from('comments')
-    .insert([comment])
+    .insert(comment)
     .select()
     .single();
 
@@ -35,7 +36,7 @@ export async function createComment(comment: CommentInsert): Promise<Comment> {
 
 // 댓글 수정
 export async function updateComment(id: string, content: string): Promise<Comment> {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as SupabaseClient)
     .from('comments')
     .update({ content })
     .eq('id', id)
@@ -95,11 +96,11 @@ export function subscribeToCommentChanges(
         table: 'comments',
         filter: `post_id=eq.${postId}`
       },
-      (payload: any) => {
+      (payload: { eventType: string; new: unknown; old: unknown }) => {
         callback({
-          eventType: payload.eventType,
-          new: payload.new,
-          old: payload.old
+          eventType: payload.eventType as 'INSERT' | 'DELETE' | 'UPDATE',
+          new: payload.new as Comment | null,
+          old: payload.old as Comment | null
         })
       }
     )

@@ -54,11 +54,11 @@ export default function LoginForm({
       })
 
       onSuccess?.()
-    } catch (error: any) {
+    } catch (error: unknown) {
       setErrors({
-        submit: error.message === 'Invalid login credentials'
+        submit: (error as Error).message === 'Invalid login credentials'
           ? '이메일 또는 비밀번호가 올바르지 않습니다'
-          : error.message || '로그인 중 오류가 발생했습니다'
+          : (error as Error).message || '로그인 중 오류가 발생했습니다'
       })
     } finally {
       setLoading(false)

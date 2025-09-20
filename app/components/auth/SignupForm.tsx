@@ -59,7 +59,7 @@ export default function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormPro
         if (!isAvailable) {
           newErrors.username = '이미 사용 중인 사용자명입니다'
         }
-      } catch (error) {
+      } catch {
         newErrors.username = '사용자명 확인 중 오류가 발생했습니다'
       }
     }
@@ -88,9 +88,9 @@ export default function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormPro
       })
 
       onSuccess?.()
-    } catch (error: any) {
+    } catch (error: unknown) {
       setErrors({
-        submit: error.message || '회원가입 중 오류가 발생했습니다'
+        submit: (error as Error).message || '회원가입 중 오류가 발생했습니다'
       })
     } finally {
       setLoading(false)

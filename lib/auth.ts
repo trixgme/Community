@@ -1,6 +1,6 @@
 import { supabase } from './supabase'
 import { createProfile } from './api/profiles'
-import type { User, AuthError } from '@supabase/supabase-js'
+import type { User } from '@supabase/supabase-js'
 
 export interface SignUpData {
   email: string
@@ -37,13 +37,13 @@ export async function signUp({ email, password, username, fullName }: SignUpData
       setTimeout(async () => {
         try {
           await createProfile({
-            id: data.user.id,
+            id: data.user!.id,
             username,
             full_name: fullName || null,
             avatar_url: null,
             bio: null,
           })
-        } catch (profileError) {
+        } catch {
           console.log('Profile creation will be handled by trigger or on login')
         }
       }, 1000)

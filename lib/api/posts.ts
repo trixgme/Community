@@ -1,5 +1,6 @@
 import { supabase } from '../supabase'
 import type { Post, PostInsert, PostWithProfile } from '../types/database.types'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 // 모든 포스트 조회 (프로필 정보 포함)
 export async function getPosts(): Promise<PostWithProfile[]> {
@@ -42,7 +43,7 @@ export async function getUserPosts(userId: string): Promise<PostWithProfile[]> {
 
 // 새 포스트 생성
 export async function createPost(post: PostInsert): Promise<Post> {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as SupabaseClient)
     .from('posts')
     .insert([post])
     .select()
@@ -54,7 +55,7 @@ export async function createPost(post: PostInsert): Promise<Post> {
 
 // 포스트 수정
 export async function updatePost(id: string, updates: Partial<PostInsert>): Promise<Post> {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as SupabaseClient)
     .from('posts')
     .update(updates)
     .eq('id', id)

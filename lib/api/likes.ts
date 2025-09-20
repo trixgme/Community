@@ -1,9 +1,10 @@
 import { supabase } from '../supabase'
-import type { Like, LikeInsert } from '../types/database.types'
+import type { Like } from '../types/database.types'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 // 포스트 좋아요 추가
 export async function likePost(userId: string, postId: string): Promise<Like> {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as SupabaseClient)
     .from('likes')
     .insert([{ user_id: userId, post_id: postId }])
     .select()
@@ -77,7 +78,7 @@ export async function toggleLike(userId: string, postId: string): Promise<boolea
 // 여러 포스트의 좋아요 상태를 한 번에 확인
 export async function checkMultipleLikeStatus(userId: string, postIds: string[]): Promise<Record<string, boolean>> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as SupabaseClient)
       .from('likes')
       .select('post_id')
       .eq('user_id', userId)
@@ -97,7 +98,7 @@ export async function checkMultipleLikeStatus(userId: string, postIds: string[])
     })
 
     // 좋아요한 포스트들을 true로 설정
-    data?.forEach(like => {
+    data?.forEach((like: { post_id: string }) => {
       likeStatusMap[like.post_id] = true
     })
 
@@ -127,11 +128,11 @@ export function subscribeToLikeChanges(
         table: 'likes',
         filter: `post_id=eq.${postId}`
       },
-      (payload: any) => {
+      (payload: { eventType: string; new: unknown; old: unknown }) => {
         callback({
-          eventType: payload.eventType,
-          new: payload.new,
-          old: payload.old
+          eventType: payload.eventType as 'INSERT' | 'DELETE' | 'UPDATE',
+          new: payload.new as Like | null,
+          old: payload.old as Like | null
         })
       }
     )

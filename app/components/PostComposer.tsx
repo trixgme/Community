@@ -86,9 +86,9 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
           setIsUploadingImage(true)
           imageUrl = await uploadImage(selectedImage)
           console.log('이미지 업로드 완료:', imageUrl)
-        } catch (uploadError: any) {
+        } catch (uploadError: unknown) {
           console.error('이미지 업로드 실패:', uploadError)
-          setError(uploadError.message || '이미지 업로드에 실패했습니다.')
+          setError(uploadError instanceof Error ? uploadError.message : '이미지 업로드에 실패했습니다.')
           return
         } finally {
           setIsUploadingImage(false)
@@ -113,9 +113,9 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
       // 부모 컴포넌트에 알림 (피드 새로고침용)
       onPostCreated?.()
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Post creation error:', error)
-      setError(error.message || '포스트 작성 중 오류가 발생했습니다.')
+      setError(error instanceof Error ? error.message : '포스트 작성 중 오류가 발생했습니다.')
     } finally {
       setIsSubmitting(false)
     }

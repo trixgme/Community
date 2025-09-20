@@ -57,7 +57,7 @@ export default function FeedPost({
 
     try {
       await toggleLike(user.id, id);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('좋아요 토글 실패:', error);
 
       // 실패 시 롤백
@@ -65,7 +65,7 @@ export default function FeedPost({
       setLikes(initialLikes);
 
       // 사용자에게 알림 (선택적)
-      // alert(error.message || '좋아요 처리 중 오류가 발생했습니다.');
+      // alert(error instanceof Error ? error.message : '좋아요 처리 중 오류가 발생했습니다.');
     } finally {
       setIsTogglingLike(false);
     }
@@ -230,7 +230,6 @@ export default function FeedPost({
       <CommentsSection
         postId={id}
         isOpen={showComments}
-        onClose={() => setShowComments(false)}
       />
     </div>
   );

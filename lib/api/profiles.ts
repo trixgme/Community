@@ -1,5 +1,6 @@
 import { supabase } from '../supabase'
 import type { Profile, ProfileInsert, ProfileUpdate } from '../types/database.types'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 // 프로필 조회 (by ID)
 export async function getProfile(userId: string): Promise<Profile | null> {
@@ -27,7 +28,7 @@ export async function getProfileByUsername(username: string): Promise<Profile | 
 
 // 새 프로필 생성 (회원가입 시)
 export async function createProfile(profile: ProfileInsert): Promise<Profile> {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as SupabaseClient)
     .from('profiles')
     .insert([profile])
     .select()
@@ -39,7 +40,7 @@ export async function createProfile(profile: ProfileInsert): Promise<Profile> {
 
 // 프로필 수정
 export async function updateProfile(userId: string, updates: ProfileUpdate): Promise<Profile> {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as SupabaseClient)
     .from('profiles')
     .update(updates)
     .eq('id', userId)
@@ -61,7 +62,7 @@ export async function getCurrentUserProfile(): Promise<Profile | null> {
 
 // 사용자명 중복 확인
 export async function checkUsernameAvailable(username: string): Promise<boolean> {
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('profiles')
     .select('id')
     .eq('username', username)

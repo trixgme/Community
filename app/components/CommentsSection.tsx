@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Send, Loader2 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { getPostComments, createComment, subscribeToCommentChanges } from '@/lib/api/comments'
@@ -10,10 +10,9 @@ import type { RealtimeChannel } from '@supabase/supabase-js'
 interface CommentsSectionProps {
   postId: string
   isOpen: boolean
-  onClose?: () => void
 }
 
-export default function CommentsSection({ postId, isOpen, onClose }: CommentsSectionProps) {
+export default function CommentsSection({ postId, isOpen }: CommentsSectionProps) {
   const { user, profile } = useAuth()
   const [comments, setComments] = useState<CommentWithProfile[]>([])
   const [newComment, setNewComment] = useState('')
@@ -51,19 +50,19 @@ export default function CommentsSection({ postId, isOpen, onClose }: CommentsSec
   }
 
   // 댓글 로드
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
       const fetchedComments = await getPostComments(postId)
       setComments(fetchedComments)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load comments:', error)
       setError('댓글을 불러오는데 실패했습니다.')
     } finally {
       setLoading(false)
     }
-  }
+  }, [postId])
 
   // 댓글 작성
   const handleSubmitComment = async (e: React.FormEvent) => {
@@ -87,12 +86,7 @@ export default function CommentsSection({ postId, isOpen, onClose }: CommentsSec
       // 즉시 UI에 댓글 추가 (낙관적 업데이트)
       const optimisticComment: CommentWithProfile = {
         ...newCommentData,
-        profiles: {
-          id: user.id,
-          username: profile.username,
-          full_name: profile.full_name,
-          avatar_url: profile.avatar_url
-        }
+        profiles: profile
       }
 
       setComments(prev => [...prev, optimisticComment])
@@ -101,9 +95,9 @@ export default function CommentsSection({ postId, isOpen, onClose }: CommentsSec
       // 스크롤을 맨 아래로 이동
       setTimeout(scrollToBottom, 100)
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to create comment:', error)
-      setError(error.message || '댓글 작성에 실패했습니다.')
+      setError(error instanceof Error ? error.message : '댓글 작성에 실패했습니다.')
     } finally {
       setSubmitting(false)
     }
@@ -119,7 +113,7 @@ export default function CommentsSection({ postId, isOpen, onClose }: CommentsSec
     if (isOpen && postId) {
       loadComments()
     }
-  }, [isOpen, postId])
+  }, [isOpen, postId, loadComments])
 
   // 실시간 댓글 변경사항 구독
   useEffect(() => {
@@ -132,7 +126,7 @@ export default function CommentsSection({ postId, isOpen, onClose }: CommentsSec
         if (payload.eventType === 'INSERT') {
           // 새 댓글이 다른 사용자에 의해 추가된 경우만 처리
           // 현재 사용자가 작성한 댓글은 이미 낙관적 업데이트로 추가됨
-          if (payload.new && user && payload.new.user_id !== user.id) {
+          if (payload.new && user && (payload.new as { user_id: string })?.user_id !== user.id) {
             // 다른 사용자의 댓글은 전체 목록을 다시 로드해서 프로필 정보 포함
             await loadComments()
             setTimeout(scrollToBottom, 100)
@@ -152,7 +146,7 @@ export default function CommentsSection({ postId, isOpen, onClose }: CommentsSec
         subscription.unsubscribe()
       }
     }
-  }, [isOpen, postId, user])
+  }, [isOpen, postId, user, loadComments])
 
   // 새 댓글 추가 시 스크롤
   useEffect(() => {
