@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, Home, Users, Bell, MessageCircle, LogOut, Settings } from 'lucide-react'
+import { Search, Bell, MessageCircle, LogOut, Settings } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import AuthModal from './auth/AuthModal'
@@ -54,12 +54,6 @@ export default function Header() {
             {user ? (
               <>
                 {/* 로그인된 사용자용 네비게이션 */}
-                <button className="p-3 hover:bg-gray-100 rounded-lg transition-colors">
-                  <Home className="w-6 h-6 text-gray-700" />
-                </button>
-                <button className="p-3 hover:bg-gray-100 rounded-lg transition-colors">
-                  <Users className="w-6 h-6 text-gray-700" />
-                </button>
                 <button className="p-3 hover:bg-gray-100 rounded-lg transition-colors">
                   <MessageCircle className="w-6 h-6 text-gray-700" />
                 </button>
